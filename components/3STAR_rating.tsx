@@ -2,8 +2,8 @@ import { ScrollView, StyleSheet, Text, View, Image, TouchableOpacity, TextInput,
 import React, { useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 
-// Define the type for a restaurant
-interface Restaurant {
+// Define the type for a RemarkableRes
+interface RemarkableRes {
     name: string;
     image: any;  // You can specify a more precise type if needed for images
     Monday?: string; // Optional property
@@ -17,8 +17,8 @@ interface Restaurant {
 }
 
 export default function ElevatedCards() {
-    // Type the restaurants state as an array of Restaurant objects
-    const [restaurants, setRestaurant] = useState<Restaurant[]>(
+    // Type the RemarkableRess state as an array of RemarkableRes objects
+    const [RemarkableRess, setRemarkableRes] = useState<RemarkableRes[]>(
         [
             {
                 name: "Double Cheeze Gulgasht",
@@ -32,50 +32,12 @@ export default function ElevatedCards() {
                 Sunday: " Sunday                  HBL - Wedn",
                 phone: "(061) 11",
             },
-            {
-                name: "AAAAAAA",
-                image: require('../assets/DoubleCheezeGulgasht.png'),
-                Monday: " Monday   HBL - Wedn",
-                Tuesday: " Tuesday   HBL - Wedn",
-                Wednesday: " Wednesday   HBL - Wedn",
-                Thursday: " Thursday   HBL - Wedn",
-                Friday: " Friday   HBL - Wedn",
-                Saturday: " Saturday   HBL - Wedn",
-                Sunday: " Sunday   HBL - Wedn",
-                phone: "(061) 11",
-                phone: "(061) 111 123 456",
-            },
-            {
-                name: "B",
-                image: require('../assets/DoubleCheezeGulgasht.png'),
-                Monday: " Monday   HBL - Wedn",
-                Tuesday: " Tuesday   HBL - Wedn",
-                Wednesday: " Wednesday   HBL - Wedn",
-                Thursday: " Thursday   HBL - Wedn",
-                Friday: " Friday   HBL - Wedn",
-                Saturday: " Saturday   HBL - Wedn",
-                Sunday: " Sunday   HBL - Wedn",
-                phone: "(061) 11", phone: "(061) 111 123 456",
-            },
-            {
-                name: "C",
-                image: require('../assets/DoubleCheezeGulgasht.png'),
-                bank: "UBL - F",
-                phone: "(061) 6",
-            },
-            {
-                name: "D",
-                image: require('../assets/DoubleCheezeGulgasht.png'),
-                bank: "UBL - ",
-                phone: "(061) 111 123 456",
-            },
-            // Add more restaurant data here
         ]
     );
 
     const [inputValue, setInputValue] = useState<string>('');
     const [isFocused, setIsFocused] = useState<boolean>(false);
-    const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null); // Typing for selectedRestaurant
+    const [selectedRemarkableRes, setSelectedRemarkableRes] = useState<RemarkableRes | null>(null); // Typing for selectedRemarkableRes
     const [isDetailVisible, setIsDetailVisible] = useState<boolean>(false);
     const [slideAnim] = useState(new Animated.Value(100)); // Initial position off-screen
 
@@ -83,9 +45,10 @@ export default function ElevatedCards() {
         Clipboard.setString(text);
     };
 
-    const handleCardPress = (restaurant: Restaurant) => {
-        setSelectedRestaurant(restaurant);
+    const handleCardPress = (RemarkableRes: RemarkableRes) => {
+        setSelectedRemarkableRes(RemarkableRes);
         setIsDetailVisible(true);
+        slideAnim.setValue(-100);
         slideIn(); // Start slide-in animation
     };
 
@@ -105,9 +68,9 @@ export default function ElevatedCards() {
         }).start(() => setIsDetailVisible(false));
     };
 
-    const filteredRestaurants = restaurants.filter(restaurant => {
+    const filteredRemarkableRess = RemarkableRess.filter(RemarkableRes => {
         const lowercasedInput = inputValue.toLowerCase();
-        return restaurant.name.toLowerCase().includes(lowercasedInput);
+        return RemarkableRes.name.toLowerCase().includes(lowercasedInput);
     });
 
 
@@ -119,38 +82,38 @@ export default function ElevatedCards() {
             </Text>
 
             <ScrollView style={styles.container} horizontal={true}>
-                {filteredRestaurants.length > 0 ? (
-                    filteredRestaurants.map((restaurant, index) => (
+                {filteredRemarkableRess.length > 0 ? (
+                    filteredRemarkableRess.map((RemarkableRes, index) => (
                         <TouchableOpacity
                             key={index}
                             style={[styles.card, styles.elevated]}
-                            onPress={() => handleCardPress(restaurant)}
+                            onPress={() => handleCardPress(RemarkableRes)}
                         >
                             <View style={styles.imageContainer}>
-                                <Image source={restaurant.image} style={styles.image} />
+                                <Image source={RemarkableRes.image} style={styles.image} />
                             </View>
-                            <Text style={styles.texcol}>{restaurant.name}</Text>
+                            <Text style={styles.texcol}>{RemarkableRes.name}</Text>
                         </TouchableOpacity>
                     ))
                 ) : (
-                    <Text style={styles.texcol}>No restaurants found.</Text>
+                    <Text style={styles.texcol}>No RemarkableRess found.</Text>
                 )}
             </ScrollView>
 
 
             {isDetailVisible && (
                 <Animated.View style={[styles.detailContainer, { transform: [{ translateY: slideAnim }] }]}>
-                    <Text style={styles.detailText}>Name: {selectedRestaurant?.name}</Text>
+                    <Text style={styles.detailText}>Name: {selectedRemarkableRes?.name}</Text>
                     <Text>Bank offers:</Text>
-                    <Text style={styles.detailText}>{selectedRestaurant?.Monday || 'N/A'}</Text>
-                    <Text style={styles.detailText}>{selectedRestaurant?.Tuesday || 'N/A'}</Text>
-                    <Text style={styles.detailText}>{selectedRestaurant?.Wednesday || 'N/A'}</Text>
-                    <Text style={styles.detailText}>{selectedRestaurant?.Thursday || 'N/A'}</Text>
-                    <Text style={styles.detailText}>{selectedRestaurant?.Friday || 'N/A'}</Text>
-                    <Text style={styles.detailText}>{selectedRestaurant?.Saturday || 'N/A'}</Text>
-                    <Text style={styles.detailText}>{selectedRestaurant?.Sunday || 'N/A'}</Text>
+                    <Text style={styles.detailText}>{selectedRemarkableRes?.Monday || 'N/A'}</Text>
+                    <Text style={styles.detailText}>{selectedRemarkableRes?.Tuesday || 'N/A'}</Text>
+                    <Text style={styles.detailText}>{selectedRemarkableRes?.Wednesday || 'N/A'}</Text>
+                    <Text style={styles.detailText}>{selectedRemarkableRes?.Thursday || 'N/A'}</Text>
+                    <Text style={styles.detailText}>{selectedRemarkableRes?.Friday || 'N/A'}</Text>
+                    <Text style={styles.detailText}>{selectedRemarkableRes?.Saturday || 'N/A'}</Text>
+                    <Text style={styles.detailText}>{selectedRemarkableRes?.Sunday || 'N/A'}</Text>
 
-                    <Text style={styles.detailText}>Phone: {selectedRestaurant?.phone || 'N/A'}</Text>
+                    <Text style={styles.detailText}>Phone: {selectedRemarkableRes?.phone || 'N/A'}</Text>
                     <TouchableOpacity onPress={slideOut}>
                         <Text style={styles.closeButton}>Close</Text>
                     </TouchableOpacity>
@@ -173,10 +136,9 @@ const styles = StyleSheet.create({
     },
     headingText: {
         fontSize: 37,
-        fontWeight: 'bold',
         textAlignVertical: 'center',
         paddingHorizontal: 30,
-        fontStyle: 'italic',
+        fontStyle: 'Roboto ',
         color: '#000000',
     },
     container: {
@@ -185,7 +147,7 @@ const styles = StyleSheet.create({
     texcol: {
         fontWeight: 'bold',
         fontStyle: 'italic',
-        fontSize: 16,
+        fontSize: 12,
         color: '#000000',
         marginTop: 77,
         textAlign: 'center',
@@ -213,15 +175,18 @@ const styles = StyleSheet.create({
     },
     detailContainer: {
         position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
+        bottom: -20,
         height: 400,
+        width: '85%', // Set width as a percentage of the screen width, or use a fixed value like 300
         backgroundColor: '#FFFFFF',
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
+        borderTopLeftRadius: 50,
+        borderTopRightRadius: 50,
+        borderBottomLeftRadius: 50,
+        borderBottomRightRadius: 50,
         padding: 10,
         elevation: 30,
+        alignSelf: 'center', // Center the slide horizontally
+        zIndex: 10, 
     },
     detailText: {
         fontSize: 15,

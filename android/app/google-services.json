@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "14913851631",
+    "project_id": "card-saver-1c17b",
+    "storage_bucket": "card-saver-1c17b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:14913851631:android:10fbedba69792dbc10cb1a",
+        "android_client_info": {
+          "package_name": "com.card"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAW4OApo_PD7izqf-GQKPFxrdlRg8ln9zM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,6 +1,7 @@
 import { ScrollView, StyleSheet, Text, View, Image, TouchableOpacity, TextInput, Animated } from 'react-native';
 import React, { useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
+import { BlurView } from '@react-native-community/blur';
 
 // Define the type for a restaurant
 interface Restaurant {
@@ -15,92 +16,130 @@ interface Restaurant {
     Sunday?: string; // Optional property
     phone?: string; // Optional property
 }
-
+interface Top_10Res {
+    name: string;
+    image: any;  // You can specify a more precise type if needed for images
+    Monday?: string; // Optional property
+    Tuesday?: string; // Optional property
+    Wednesday?: string; // Optional property
+    Thursday?: string; // Optional property
+    Friday?: string; // Optional property
+    Saturday?: string; // Optional property
+    Sunday?: string; // Optional property
+    phone?: string; // Optional property
+}
+interface RemarkableRes {
+    name: string;
+    image: any;  // You can specify a more precise type if needed for images
+    Monday?: string; // Optional property
+    Tuesday?: string; // Optional property
+    Wednesday?: string; // Optional property
+    Thursday?: string; // Optional property
+    Friday?: string; // Optional property
+    Saturday?: string; // Optional property
+    Sunday?: string; // Optional property
+    phone?: string; // Optional property
+}
 export default function ElevatedCards() {
     // Type the restaurants state as an array of Restaurant objects
     const [restaurants, setRestaurant] = useState<Restaurant[]>(
         [
             {
-                name: "Double Cheeze Gulgasht",
+                name: 'Double Cheeze Gulgasht',
                 image: require('../assets/DoubleCheezeGulgasht.png'),
-                Monday: " Monday                  HBL - Wedn",
-                Tuesday: " Tuesday                HBL - Wedn",
-                Wednesday: " Wednesday            HBL - Wedn",
-                Thursday: " Thursday              HBL - Wedn",
-                Friday: " Friday                  HBL - Wedn",
-                Saturday: " Saturday              HBL - Wedn",
-                Sunday: " Sunday                  HBL - Wedn",
-                phone: "(061) 11",
+                Monday: 'Monday                  HBL ',
+                Tuesday: 'Tuesday                HBL ',
+                Wednesday: 'Wednesday            HBL ',
+                Thursday: 'Thursday              HBL ',
+                Friday: 'Friday                  HBL ',
+                Saturday:'Saturday              HBL ',
+                Sunday: 'Sunday                  HBL',
+                phone: '(061) 11',
             },
             {
                 name: "A",
                 image: require('../assets/DoubleCheezeGulgasht.png'),
-                Monday: " Monday   HBL - Wedn",
-                Tuesday: " Tuesday   HBL - Wedn",
-                Wednesday: " Wednesday   HBL - Wedn",
-                Thursday: " Thursday   HBL - Wedn",
-                Friday: " Friday   HBL - Wedn",
-                Saturday: " Saturday   HBL - Wedn",
-                Sunday: " Sunday   HBL - Wedn",
-                phone: "(061) 11",
-                phone: "(061) 111 123 456",
+                Monday: 'Monday                  HBL ',
+                Tuesday: 'Tuesday                HBL ',
+                Wednesday: 'Wednesday            HBL ',
+                Thursday: 'Thursday              HBL ',
+                Friday: 'Friday                  HBL ',
+                Saturday: 'Saturday              HBL ',
+                Sunday: 'Sunday                  HBL',
+                phone: '(061) 11',
+                
             },
             {
                 name: "B",
                 image: require('../assets/DoubleCheezeGulgasht.png'),
-                Monday: " Monday   HBL - Wedn",
-                Tuesday: " Tuesday   HBL - Wedn",
-                Wednesday: " Wednesday   HBL - Wedn",
-                Thursday: " Thursday   HBL - Wedn",
-                Friday: " Friday   HBL - Wedn",
-                Saturday: " Saturday   HBL - Wedn",
-                Sunday: " Sunday   HBL - Wedn",
-                phone: "(061) 11",                phone: "(061) 111 123 456",
-            },
-            {
-                name: "C",
-                image: require('../assets/DoubleCheezeGulgasht.png'),
-                bank: "UBL - F",
-                phone: "(061) 6",
-            },
-            {
-                name: "D",
-                image: require('../assets/DoubleCheezeGulgasht.png'),
-                bank: "UBL - ",
-                phone: "(061) 111 123 456",
+                Monday: 'Monday                  HBL ',
+                Tuesday: 'Tuesday                HBL ',
+                Wednesday: 'Wednesday            HBL ',
+                Thursday: 'Thursday              HBL ',
+                Friday: 'Friday                  HBL ',
+                Saturday: 'Saturday              HBL ',
+                Sunday: 'Sunday                  HBL',
+                phone: '(061) 11',
             },
             // Add more restaurant data here
         ]
     );
+    const [Top_10restaurants, setTop_10restaurants] = useState<Top_10Res[]>(
+        [
+            {
+                name: 'Double Cheeze Gulgasht',
+                image: require('../assets/DoubleCheezeGulgasht.png'),
+                Monday: " Monday                  HBL - Wedn",
+               
+            },
+            // Add more restaurant data here
+        ]
+    );
+    const [RemarkableRess, setRemarkableRes] = useState<RemarkableRes[]>(
+        [
+            {
+                name: 'Double Cheeze Gulgasht',
+                image: require('../assets/DoubleCheezeGulgasht.png'),  
+                phone: '(061) 11',
+            },
+            {
+                name: 'Double Cheeze Gulgasht',
+                image: require('../assets/DoubleCheezeGulgasht.png'),
 
-    const [inputValue, setInputValue] = useState<string>('');
-    const [isFocused, setIsFocused] = useState<boolean>(false);
-    const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null); // Typing for selectedRestaurant
-    const [isDetailVisible, setIsDetailVisible] = useState<boolean>(false);
-    const [slideAnim] = useState(new Animated.Value(100)); // Initial position off-screen
+                phone: '(061) 11',
+            },
+        ]
+    );
 
+    const [isDetailVisible, setIsDetailVisible] = useState(false);
+    const [selectedRestaurant, setSelectedRestaurant] = useState(null);
+    const [fadeAnim] = useState(new Animated.Value(0));
+    const [inputValue, setInputValue] = useState('');
+    const [isFocused, setIsFocused] = useState(false);
+  //  const [slideAnim] = useState(new Animated.Value(100)); // Initial position off-screen
     const copyToClipboard = (text: string) => {
         Clipboard.setString(text);
     };
 
-    const handleCardPress = (restaurant: Restaurant) => {
+    const handleCardPress = (restaurant: any) => {
         setSelectedRestaurant(restaurant);
         setIsDetailVisible(true);
-        slideIn(); // Start slide-in animation
+        fadeAnim.setValue(0);
+        fadeIn();
     };
 
-    const slideIn = () => {
-        Animated.timing(slideAnim, {
-            toValue: 0, // Slide to visible position
+    const fadeIn = () => {
+        Animated.timing(fadeAnim, {
+            toValue: 1, // Fade to full opacity
             duration: 500,
             useNativeDriver: true,
         }).start();
     };
 
-    const slideOut = () => {
-        Animated.timing(slideAnim, {
-            toValue: -800, // Hide the view
-            duration: 100,
+    const fadeOut = () => {
+        Animated.timing(fadeAnim, {
+            toValue: 0, // Fade out
+            duration: 500,
             useNativeDriver: true,
         }).start(() => setIsDetailVisible(false));
     };
@@ -110,9 +149,18 @@ export default function ElevatedCards() {
         return restaurant.name.toLowerCase().includes(lowercasedInput);
     });
 
-
     return (
         <View style={{ flex: 1 }}>
+            {/* Blur background when modal is visible */}
+            {isDetailVisible && (
+                <BlurView
+                    style={styles.absolute}
+                    blurType="light"
+                    blurAmount={10}
+                    reducedTransparencyFallbackColor="white"
+                />
+            )}
+
             <View style={styles.searchbox}>
                 <TextInput
                     style={{ flex: 1, paddingHorizontal: 30 }}
@@ -126,7 +174,6 @@ export default function ElevatedCards() {
             <Text style={[styles.headingText, { textDecorationLine: 'underline' }]}>
                 Popular Restaurant
             </Text>
-
             <ScrollView style={styles.container} horizontal={true}>
                 {filteredRestaurants.length > 0 ? (
                     filteredRestaurants.map((restaurant, index) => (
@@ -145,12 +192,57 @@ export default function ElevatedCards() {
                     <Text style={styles.texcol}>No restaurants found.</Text>
                 )}
             </ScrollView>
+            <Text style={[styles.headingText, { textDecorationLine: 'underline' }]}>
+                Top_10
+            </Text>
+            <ScrollView style={styles.container} horizontal={true}>
+                {Top_10restaurants.length > 0 ? (
+                    Top_10restaurants.map((top_10Res, index) => (
+                        <TouchableOpacity
+                            key={index}
+                            style={[styles.card, styles.elevated]}
+                            onPress={() => handleCardPress(top_10Res)}
+                        >
+                            <View style={styles.imageContainer}>
+                                <Image source={top_10Res.image} style={styles.image} />
+                            </View>
+                            <Text style={styles.texcol}>{top_10Res.name}</Text>
+                        </TouchableOpacity>
+                    ))
+                ) : (
+                    <Text style={styles.texcol}>No Top_10res found.</Text>
+                )}
 
+            </ScrollView>
+            <Text style={[styles.headingText, { textDecorationLine: 'underline' }]}>
+                Remarkable
+            </Text>
+            <ScrollView style={styles.container} horizontal={true}>
+                {RemarkableRess.length > 0 ? (
+                    RemarkableRess.map((remarkableRes, index) => (
+                        <TouchableOpacity
+                            key={index}
+                            style={[styles.card, styles.elevated]}
+                            onPress={() => handleCardPress(remarkableRes)}
+                        >
+                            <View style={styles.imageContainer}>
+                                <Image source={remarkableRes.image} style={styles.image} />
+                            </View>
+                            <Text style={styles.texcol}>{remarkableRes.name}</Text>
+                        </TouchableOpacity>
+                    ))
+                ) : (
+                    <Text style={styles.texcol}>No RemarkableRes found.</Text>
+                )}
+            </ScrollView>
 
             {isDetailVisible && (
-                <Animated.View style={[styles.detailContainer, { transform: [{ translateY: slideAnim }] }]}>
+                <Animated.View style={[styles.detailContainer, { opacity: fadeAnim }]}>
                     <Text style={styles.detailText}>Name: {selectedRestaurant?.name}</Text>
                     <Text>Bank offers:</Text>
+                    {/* <Text style={styles.detailText}>Monday : {selectedRestaurant?.Monday?.forEach((item)=>{
+                        return item
+                    })} {selectedRestaurant?.Monday || 'N/A'}</Text> */}
                     <Text style={styles.detailText}>{selectedRestaurant?.Monday || 'N/A'}</Text>
                     <Text style={styles.detailText}>{selectedRestaurant?.Tuesday || 'N/A'}</Text>
                     <Text style={styles.detailText}>{selectedRestaurant?.Wednesday || 'N/A'}</Text>
@@ -160,15 +252,16 @@ export default function ElevatedCards() {
                     <Text style={styles.detailText}>{selectedRestaurant?.Sunday || 'N/A'}</Text>
 
                     <Text style={styles.detailText}>Phone: {selectedRestaurant?.phone || 'N/A'}</Text>
-                    <TouchableOpacity onPress={slideOut}>
+                    <TouchableOpacity onPress={fadeOut}>
                         <Text style={styles.closeButton}>Close</Text>
                     </TouchableOpacity>
                 </Animated.View>
             )}
+
+            {/* Modal content with fade-in animation */}
         </View>
     );
 }
-
 const styles = StyleSheet.create({
     searchbox: {
         justifyContent: 'center',
@@ -182,10 +275,9 @@ const styles = StyleSheet.create({
     },
     headingText: {
         fontSize: 37,
-        fontWeight: 'bold',
         textAlignVertical: 'center',
         paddingHorizontal: 30,
-        fontStyle: 'italic',
+        fontStyle: 'normal',
         color: '#000000',
     },
     container: {
@@ -194,7 +286,7 @@ const styles = StyleSheet.create({
     texcol: {
         fontWeight: 'bold',
         fontStyle: 'italic',
-        fontSize: 16,
+        fontSize: 12,
         color: '#000000',
         marginTop: 77,
         textAlign: 'center',
@@ -222,20 +314,18 @@ const styles = StyleSheet.create({
     },
     detailContainer: {
         position: 'absolute',
-        bottom: 0,
-        left: 0,
-        right: 0,
+        bottom: 200 , // Adjusted to show from the bottom with a gap
         height: 400,
-        backgroundColor: '#FFFFFF',
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
+        width: '85%',
+        backgroundColor: '#EEEEEE',
+        borderRadius: 50,
         padding: 10,
-        elevation: 30,
+        alignSelf: 'center',
+        zIndex: 5,
     },
     detailText: {
         fontSize: 15,
         marginVertical: 5,
-        color:'bold',
         fontWeight: 'bold',
         fontStyle: 'italic',
         color: '#000000',
@@ -247,4 +337,13 @@ const styles = StyleSheet.create({
         color: 'red',
         textAlign: 'center',
     },
+    absolute: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        bottom: 0,
+        right: 0,
+        zIndex: 1,
+    },
 });
+

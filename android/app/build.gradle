@@ -1,6 +1,8 @@
 apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
+apply plugin: "com.google.gms.google-services"  // <-- Add this line
+
 
 /**
  * This is the configuration block to customize your React Native Android app.
@@ -117,7 +119,7 @@ android {
 }
 
 dependencies {
-    // The version of react-native is set by the React Native Gradle Plugin
+    // Your existing dependencies
     implementation("com.facebook.react:react-android")
 
     if (hermesEnabled.toBoolean()) {
@@ -125,4 +127,11 @@ dependencies {
     } else {
         implementation jscFlavor
     }
+
+    // Add Firebase BoM
+    implementation platform("com.google.firebase:firebase-bom:33.3.0")
+
+    // Add Firebase Analytics (or any other Firebase products you need)
+    implementation("com.google.firebase:firebase-analytics")
 }
+
