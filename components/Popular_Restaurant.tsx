@@ -1,8 +1,8 @@
 import { ScrollView, StyleSheet, Text, View, Image, TouchableOpacity, TextInput, Animated } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { BlurView } from '@react-native-community/blur';
-
+import firestore from '@react-native-firebase/firestore';
 // Define the type for a restaurant
 interface Restaurant {
     name: string;
@@ -40,50 +40,17 @@ interface RemarkableRes {
     Sunday?: string; // Optional property
     phone?: string; // Optional property
 }
+
+interface ResturantInt{
+    address:string,
+    discount_on:string[],
+    name:string,
+    rating:number,
+    reviews:string[]
+}
 export default function ElevatedCards() {
     // Type the restaurants state as an array of Restaurant objects
-    const [restaurants, setRestaurant] = useState<Restaurant[]>(
-        [
-            {
-                name: 'Double Cheeze Gulgasht',
-                image: require('../assets/DoubleCheezeGulgasht.png'),
-                Monday: 'Monday                  HBL ',
-                Tuesday: 'Tuesday                HBL ',
-                Wednesday: 'Wednesday            HBL ',
-                Thursday: 'Thursday              HBL ',
-                Friday: 'Friday                  HBL ',
-                Saturday:'Saturday              HBL ',
-                Sunday: 'Sunday                  HBL',
-                phone: '(061) 11',
-            },
-            {
-                name: "A",
-                image: require('../assets/DoubleCheezeGulgasht.png'),
-                Monday: 'Monday                  HBL ',
-                Tuesday: 'Tuesday                HBL ',
-                Wednesday: 'Wednesday            HBL ',
-                Thursday: 'Thursday              HBL ',
-                Friday: 'Friday                  HBL ',
-                Saturday: 'Saturday              HBL ',
-                Sunday: 'Sunday                  HBL',
-                phone: '(061) 11',
-                
-            },
-            {
-                name: "B",
-                image: require('../assets/DoubleCheezeGulgasht.png'),
-                Monday: 'Monday                  HBL ',
-                Tuesday: 'Tuesday                HBL ',
-                Wednesday: 'Wednesday            HBL ',
-                Thursday: 'Thursday              HBL ',
-                Friday: 'Friday                  HBL ',
-                Saturday: 'Saturday              HBL ',
-                Sunday: 'Sunday                  HBL',
-                phone: '(061) 11',
-            },
-            // Add more restaurant data here
-        ]
-    );
+  
     const [Top_10restaurants, setTop_10restaurants] = useState<Top_10Res[]>(
         [
             {
@@ -116,11 +83,25 @@ export default function ElevatedCards() {
     const [fadeAnim] = useState(new Animated.Value(0));
     const [inputValue, setInputValue] = useState('');
     const [isFocused, setIsFocused] = useState(false);
+    const [resturants, setResturants] = useState<ResturantInt[]|[]>([])
   //  const [slideAnim] = useState(new Animated.Value(100)); // Initial position off-screen
     const copyToClipboard = (text: string) => {
         Clipboard.setString(text);
     };
+    useEffect(()=>{
+        const getDatabase = async () => {
+          const docRef = firestore().collection('resturants');
+          const doc = await docRef.get();
 
+            setResturants(doc.docs||[])
+          //   if (doc.exists) {
+        //     // setmydata(doc.data());
+        //   } else {
+        //     console.log('No such document!');
+        //   }
+        };
+        getDatabase()
+    },[])
     const handleCardPress = (restaurant: any) => {
         setSelectedRestaurant(restaurant);
         setIsDetailVisible(true);
@@ -136,6 +117,10 @@ export default function ElevatedCards() {
         }).start();
     };
 
+    const imageMap = {
+        'fork-n-knive': require('./../assets/fork-n-knive.jpeg'),
+        // Add more mappings here
+    };
     const fadeOut = () => {
         Animated.timing(fadeAnim, {
             toValue: 0, // Fade out
@@ -144,10 +129,10 @@ export default function ElevatedCards() {
         }).start(() => setIsDetailVisible(false));
     };
 
-    const filteredRestaurants = restaurants.filter(restaurant => {
-        const lowercasedInput = inputValue.toLowerCase();
-        return restaurant.name.toLowerCase().includes(lowercasedInput);
-    });
+    // const filteredRestaurants = resturants.filter(restaurant => {
+    //     const lowercasedInput = inputValue.toLowerCase();
+    //     return restaurant.name.toLowerCase().includes(lowercasedInput);
+    // });
 
     return (
         <View style={{ flex: 1 }}>
@@ -175,17 +160,17 @@ export default function ElevatedCards() {
                 Popular Restaurant
             </Text>
             <ScrollView style={styles.container} horizontal={true}>
-                {filteredRestaurants.length > 0 ? (
-                    filteredRestaurants.map((restaurant, index) => (
+                {resturants.length > 0 ? (
+                    resturants.map((restaurant, index) => (
                         <TouchableOpacity
                             key={index}
                             style={[styles.card, styles.elevated]}
                             onPress={() => handleCardPress(restaurant)}
                         >
                             <View style={styles.imageContainer}>
-                                <Image source={restaurant.image} style={styles.image} />
+                                <Image source={imageMap[restaurant._data.name]} style={styles.image} />
                             </View>
-                            <Text style={styles.texcol}>{restaurant.name}</Text>
+                            <Text style={styles.texcol}>{restaurant._data.name}</Text>
                         </TouchableOpacity>
                     ))
                 ) : (
