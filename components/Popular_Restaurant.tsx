@@ -1,90 +1,28 @@
 import { ScrollView, StyleSheet, Text, View, Image, TouchableOpacity, TextInput, Animated } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { BlurView } from '@react-native-community/blur';
 import firestore from '@react-native-firebase/firestore';
 // Define the type for a restaurant
-interface Restaurant {
-    name: string;
-    image: any;  // You can specify a more precise type if needed for images
-    Monday?: string; // Optional property
-    Tuesday?: string; // Optional property
-    Wednesday?: string; // Optional property
-    Thursday?: string; // Optional property
-    Friday?: string; // Optional property
-    Saturday?: string; // Optional property
-    Sunday?: string; // Optional property
-    phone?: string; // Optional property
-}
-interface Top_10Res {
-    name: string;
-    image: any;  // You can specify a more precise type if needed for images
-    Monday?: string; // Optional property
-    Tuesday?: string; // Optional property
-    Wednesday?: string; // Optional property
-    Thursday?: string; // Optional property
-    Friday?: string; // Optional property
-    Saturday?: string; // Optional property
-    Sunday?: string; // Optional property
-    phone?: string; // Optional property
-}
-interface RemarkableRes {
-    name: string;
-    image: any;  // You can specify a more precise type if needed for images
-    Monday?: string; // Optional property
-    Tuesday?: string; // Optional property
-    Wednesday?: string; // Optional property
-    Thursday?: string; // Optional property
-    Friday?: string; // Optional property
-    Saturday?: string; // Optional property
-    Sunday?: string; // Optional property
-    phone?: string; // Optional property
-}
-
 interface ResturantInt{
     address:string,
-    discount_on:string[],
+    discount:any,
     name:string,
     rating:number,
-    reviews:string[]
+    reviews:string[],
+    resturant_type:string
 }
-export default function ElevatedCards() {
-    // Type the restaurants state as an array of Restaurant objects
-  
-    const [Top_10restaurants, setTop_10restaurants] = useState<Top_10Res[]>(
-        [
-            {
-                name: 'Double Cheeze Gulgasht',
-                image: require('../assets/DoubleCheezeGulgasht.png'),
-                Monday: " Monday                  HBL - Wedn",
-               
-            },
-            // Add more restaurant data here
-        ]
-    );
-    const [RemarkableRess, setRemarkableRes] = useState<RemarkableRes[]>(
-        [
-            {
-                name: 'Double Cheeze Gulgasht',
-                image: require('../assets/DoubleCheezeGulgasht.png'),  
-                phone: '(061) 11',
-            },
-            {
-                name: 'Double Cheeze Gulgasht',
-                image: require('../assets/DoubleCheezeGulgasht.png'),
 
-                phone: '(061) 11',
-            },
-        ]
-    );
+export default function ElevatedCards() {
 
     const [isDetailVisible, setIsDetailVisible] = useState(false);
     const [selectedRestaurant, setSelectedRestaurant] = useState(null);
     const [fadeAnim] = useState(new Animated.Value(0));
     const [inputValue, setInputValue] = useState('');
     const [isFocused, setIsFocused] = useState(false);
-    const [resturants, setResturants] = useState<ResturantInt[]|[]>([])
-  //  const [slideAnim] = useState(new Animated.Value(100)); // Initial position off-screen
+    const [resturants, setResturants] = useState<any[]|[]>([])
+    
+    const [selectedResturant, setSelectedResturant] = useState<Restaurant|null>(null)
     const copyToClipboard = (text: string) => {
         Clipboard.setString(text);
     };
@@ -92,13 +30,7 @@ export default function ElevatedCards() {
         const getDatabase = async () => {
           const docRef = firestore().collection('resturants');
           const doc = await docRef.get();
-
-            setResturants(doc.docs||[])
-          //   if (doc.exists) {
-        //     // setmydata(doc.data());
-        //   } else {
-        //     console.log('No such document!');
-        //   }
+          setResturants(doc.docs||[])
         };
         getDatabase()
     },[])
@@ -108,6 +40,44 @@ export default function ElevatedCards() {
         fadeAnim.setValue(0);
         fadeIn();
     };
+
+    const popularResturant = useMemo(()=>{
+        console.log("Resturants in use memo ",resturants);
+        
+        const filteredRest = resturants?.filter((item: any) =>{
+            console.log(" resutnat single in use ,emo , ", item?._data);
+            
+            return (item?._data.resturant_type?.toLowerCase() === 'popular')
+        } )
+        console.log("Filtred Resturants in use memo ", filteredRest);
+
+        return filteredRest
+    },[resturants])
+    const top_10 = useMemo(() => {
+        console.log("Resturants in use memo ", resturants);
+
+        const filteredRest = resturants?.filter((item: any) => {
+            console.log(" resutnat single in use ,emo , ", item?._data);
+
+            return (item?._data.resturant_type?.toLowerCase() === 'top_10')
+        })
+        console.log("Filtred Resturants in use memo ", filteredRest);
+
+        return filteredRest
+    }, [resturants])
+
+    const Remarkable = useMemo(() => {
+        console.log("Resturants in use memo ", resturants);
+
+        const filteredRest = resturants?.filter((item: any) => {
+            console.log(" resutnat single in use ,emo , ", item?._data);
+
+            return (item?._data.resturant_type?.toLowerCase() === 'remarkable')
+        })
+        console.log("Filtred Resturants in use memo ", filteredRest);
+
+        return filteredRest
+    }, [resturants])
 
     const fadeIn = () => {
         Animated.timing(fadeAnim, {
@@ -119,6 +89,12 @@ export default function ElevatedCards() {
 
     const imageMap = {
         'fork-n-knive': require('./../assets/fork-n-knive.jpeg'),
+        'Double Cheeze': require('./../assets/DoubleCheezeGulgasht.png'),
+        'Pizza Hut': require('./../assets/Pizza-Hut.png'),
+        'McDonald' :require('./../assets/McDonald.png'),
+        'Hardees' :require('./../assets/Hardees.jpg'),
+        'AlKaifMultan':require('./../assets/AlKaifMultan.jpeg'),
+
         // Add more mappings here
     };
     const fadeOut = () => {
@@ -129,10 +105,6 @@ export default function ElevatedCards() {
         }).start(() => setIsDetailVisible(false));
     };
 
-    // const filteredRestaurants = resturants.filter(restaurant => {
-    //     const lowercasedInput = inputValue.toLowerCase();
-    //     return restaurant.name.toLowerCase().includes(lowercasedInput);
-    // });
 
     return (
         <View style={{ flex: 1 }}>
@@ -160,12 +132,12 @@ export default function ElevatedCards() {
                 Popular Restaurant
             </Text>
             <ScrollView style={styles.container} horizontal={true}>
-                {resturants.length > 0 ? (
-                    resturants.map((restaurant, index) => (
+                {popularResturant?.length > 0 ? (
+                    popularResturant?.map((restaurant, index) => (
                         <TouchableOpacity
                             key={index}
                             style={[styles.card, styles.elevated]}
-                            onPress={() => handleCardPress(restaurant)}
+                            onPress={() => { handleCardPress(restaurant?._data)}}
                         >
                             <View style={styles.imageContainer}>
                                 <Image source={imageMap[restaurant._data.name]} style={styles.image} />
@@ -181,21 +153,25 @@ export default function ElevatedCards() {
                 Top_10
             </Text>
             <ScrollView style={styles.container} horizontal={true}>
-                {Top_10restaurants.length > 0 ? (
-                    Top_10restaurants.map((top_10Res, index) => (
-                        <TouchableOpacity
-                            key={index}
-                            style={[styles.card, styles.elevated]}
-                            onPress={() => handleCardPress(top_10Res)}
-                        >
-                            <View style={styles.imageContainer}>
-                                <Image source={top_10Res.image} style={styles.image} />
-                            </View>
-                            <Text style={styles.texcol}>{top_10Res.name}</Text>
-                        </TouchableOpacity>
-                    ))
+                {top_10?.length > 0 ? (
+                    top_10?.map((restaurant, index) =>{
+                        console.log("top 10 item ", restaurant._data.name);
+                        return (  // <-- Added parentheses here
+                            <TouchableOpacity
+                                key={index}
+                                style={[styles.card, styles.elevated]}
+                                onPress={() => { handleCardPress(restaurant?._data) }}
+                            >
+                                <View style={styles.imageContainer}>
+                                    <Image source={imageMap[restaurant._data.name]} style={styles.image} />
+                                </View>
+                                <Text style={styles.texcol}>{restaurant._data.name}</Text>
+                            </TouchableOpacity>
+                        ) 
+                        
+                    })
                 ) : (
-                    <Text style={styles.texcol}>No Top_10res found.</Text>
+                    <Text style={styles.texcol}>No Top_10 res found.</Text>
                 )}
 
             </ScrollView>
@@ -203,40 +179,50 @@ export default function ElevatedCards() {
                 Remarkable
             </Text>
             <ScrollView style={styles.container} horizontal={true}>
-                {RemarkableRess.length > 0 ? (
-                    RemarkableRess.map((remarkableRes, index) => (
-                        <TouchableOpacity
-                            key={index}
-                            style={[styles.card, styles.elevated]}
-                            onPress={() => handleCardPress(remarkableRes)}
-                        >
-                            <View style={styles.imageContainer}>
-                                <Image source={remarkableRes.image} style={styles.image} />
-                            </View>
-                            <Text style={styles.texcol}>{remarkableRes.name}</Text>
-                        </TouchableOpacity>
-                    ))
+                {Remarkable?.length > 0 ? (
+                    Remarkable?.map((restaurant, index) => {
+                        return (  // <-- Added parentheses here
+                            <TouchableOpacity
+                                key={index}
+                                style={[styles.card, styles.elevated]}
+                                onPress={() => { handleCardPress(restaurant?._data) }}
+                            >
+                                <View style={styles.imageContainer}>
+                                    <Image source={imageMap[restaurant._data.name]} style={styles.image} />
+                                </View>
+                                <Text style={styles.texcol}>{restaurant._data.name}</Text>
+                            </TouchableOpacity>
+                        )
+
+                    })
                 ) : (
-                    <Text style={styles.texcol}>No RemarkableRes found.</Text>
+                        <Text style={styles.texcol}>No Remarkable res found.</Text>
                 )}
-            </ScrollView>
+            </ScrollView> 
 
             {isDetailVisible && (
                 <Animated.View style={[styles.detailContainer, { opacity: fadeAnim }]}>
                     <Text style={styles.detailText}>Name: {selectedRestaurant?.name}</Text>
-                    <Text>Bank offers:</Text>
-                    {/* <Text style={styles.detailText}>Monday : {selectedRestaurant?.Monday?.forEach((item)=>{
-                        return item
-                    })} {selectedRestaurant?.Monday || 'N/A'}</Text> */}
-                    <Text style={styles.detailText}>{selectedRestaurant?.Monday || 'N/A'}</Text>
-                    <Text style={styles.detailText}>{selectedRestaurant?.Tuesday || 'N/A'}</Text>
-                    <Text style={styles.detailText}>{selectedRestaurant?.Wednesday || 'N/A'}</Text>
-                    <Text style={styles.detailText}>{selectedRestaurant?.Thursday || 'N/A'}</Text>
-                    <Text style={styles.detailText}>{selectedRestaurant?.Friday || 'N/A'}</Text>
-                    <Text style={styles.detailText}>{selectedRestaurant?.Saturday || 'N/A'}</Text>
-                    <Text style={styles.detailText}>{selectedRestaurant?.Sunday || 'N/A'}</Text>
-
-                    <Text style={styles.detailText}>Phone: {selectedRestaurant?.phone || 'N/A'}</Text>
+                    <Text style={styles.detailText}>Bank offers:</Text>
+                    {selectedRestaurant?.discount?.map((item:any)=>{
+                        return (
+                            <Text style={styles.detailText}>
+                                {item?.discount_day}:
+                                {item?.discount_bank?.map((bank: string) => (
+                                    <Text style={styles.detailText}>{bank}</Text>
+                                ))}
+                            </Text>
+                        );
+                    })}
+                    <Text style={styles.detailText}>Phone: {selectedRestaurant?.contact }</Text>
+                    <Text style={styles.detailText}>Address:  {  selectedRestaurant?.address}</Text>
+                    <Text style={styles.detailText}> Rating: {selectedRestaurant?.rating}</Text>
+                    <Text style={styles.detailText}>Reviews: </Text>
+                    {selectedRestaurant?.reviews?.map((review:any,index:number)=>{
+                        return(
+                         <Text key={index} style={styles.detailText}>{review}</Text>
+                        );
+                    })}
                     <TouchableOpacity onPress={fadeOut}>
                         <Text style={styles.closeButton}>Close</Text>
                     </TouchableOpacity>
