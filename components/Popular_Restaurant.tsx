@@ -3,56 +3,39 @@ import React, { useEffect, useMemo, useState } from 'react';
 import Clipboard from '@react-native-clipboard/clipboard';
 import { BlurView } from '@react-native-community/blur';
 import firestore from '@react-native-firebase/firestore';
-// Define the type for a restaurant
-interface ResturantInt{
-    address:string,
-    discount:any,
-    name:string,
-    rating:number,
-    reviews:string[],
-    resturant_type:string
-}
+import SearchedResults from './SearchedResults';
+
 
 export default function ElevatedCards() {
-
     const [isDetailVisible, setIsDetailVisible] = useState(false);
     const [selectedRestaurant, setSelectedRestaurant] = useState(null);
     const [fadeAnim] = useState(new Animated.Value(0));
     const [inputValue, setInputValue] = useState('');
     const [isFocused, setIsFocused] = useState(false);
-    const [resturants, setResturants] = useState<any[]|[]>([])
-    
-    const [selectedResturant, setSelectedResturant] = useState<Restaurant|null>(null)
-    const copyToClipboard = (text: string) => {
-        Clipboard.setString(text);
-    };
-    useEffect(()=>{
+    const [resturants, setResturants] = useState<any[] | []>([])
+    useEffect(() => {
         const getDatabase = async () => {
-          const docRef = firestore().collection('resturants');
-          const doc = await docRef.get();
-          setResturants(doc.docs||[])
+            const docRef = firestore().collection('resturants');
+            const doc = await docRef.get();
+            setResturants(doc.docs || [])
         };
         getDatabase()
-    },[])
+    }, [])
     const handleCardPress = (restaurant: any) => {
         setSelectedRestaurant(restaurant);
         setIsDetailVisible(true);
         fadeAnim.setValue(0);
         fadeIn();
     };
-
-    const popularResturant = useMemo(()=>{
-        console.log("Resturants in use memo ",resturants);
-        
-        const filteredRest = resturants?.filter((item: any) =>{
+    const popularResturant = useMemo(() => {
+        console.log("Resturants in use memo ", resturants);
+        const filteredRest = resturants?.filter((item: any) => {
             console.log(" resutnat single in use ,emo , ", item?._data);
-            
             return (item?._data.resturant_type?.toLowerCase() === 'popular')
-        } )
+        })
         console.log("Filtred Resturants in use memo ", filteredRest);
-
         return filteredRest
-    },[resturants])
+    }, [resturants])
     const top_10 = useMemo(() => {
         console.log("Resturants in use memo ", resturants);
 
@@ -91,9 +74,9 @@ export default function ElevatedCards() {
         'fork-n-knive': require('./../assets/fork-n-knive.jpeg'),
         'Double Cheeze': require('./../assets/DoubleCheezeGulgasht.png'),
         'Pizza Hut': require('./../assets/Pizza-Hut.png'),
-        'McDonald' :require('./../assets/McDonald.png'),
-        'Hardees' :require('./../assets/Hardees.jpg'),
-        'AlKaifMultan':require('./../assets/AlKaifMultan.jpeg'),
+        'McDonald': require('./../assets/McDonald.png'),
+        'Hardees': require('./../assets/Hardees.jpg'),
+        'AlKaifMultan': require('./../assets/AlKaifMultan.jpeg'),
 
         // Add more mappings here
     };
@@ -105,6 +88,14 @@ export default function ElevatedCards() {
         }).start(() => setIsDetailVisible(false));
     };
 
+    const filteredResturants = useMemo(() => {
+        const filteredRest = resturants?.filter((item: any) => {
+            console.log(" resutnat single in use ,emo , ", item?._data);
+
+            return (item?._data.name?.toLowerCase()?.includes(inputValue?.toLowerCase()))
+        })
+        return filteredRest
+    }, [resturants, inputValue])
 
     return (
         <View style={{ flex: 1 }}>
@@ -120,120 +111,133 @@ export default function ElevatedCards() {
 
             <View style={styles.searchbox}>
                 <TextInput
-                    style={{ flex: 1, paddingHorizontal: 30 }}
+                    style={{ flex: 1, paddingHorizontal: 30, textAlign: 'left' }}
                     value={inputValue}
                     onChangeText={(text) => setInputValue(text)}
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
                     placeholder={isFocused ? '' : '🔍 Filter by Restaurant Name or Bank card'}
+
                 />
             </View>
-            <Text style={[styles.headingText, { textDecorationLine: 'underline' }]}>
-                Popular Restaurant
-            </Text>
-            <ScrollView style={styles.container} horizontal={true}>
-                {popularResturant?.length > 0 ? (
-                    popularResturant?.map((restaurant, index) => (
-                        <TouchableOpacity
-                            key={index}
-                            style={[styles.card, styles.elevated]}
-                            onPress={() => { handleCardPress(restaurant?._data)}}
-                        >
-                            <View style={styles.imageContainer}>
-                                <Image source={imageMap[restaurant._data.name]} style={styles.image} />
-                            </View>
-                            <Text style={styles.texcol}>{restaurant._data.name}</Text>
-                        </TouchableOpacity>
-                    ))
-                ) : (
-                    <Text style={styles.texcol}>No restaurants found.</Text>
-                )}
-            </ScrollView>
-            <Text style={[styles.headingText, { textDecorationLine: 'underline' }]}>
-                Top_10
-            </Text>
-            <ScrollView style={styles.container} horizontal={true}>
-                {top_10?.length > 0 ? (
-                    top_10?.map((restaurant, index) =>{
-                        console.log("top 10 item ", restaurant._data.name);
-                        return (  // <-- Added parentheses here
-                            <TouchableOpacity
-                                key={index}
-                                style={[styles.card, styles.elevated]}
-                                onPress={() => { handleCardPress(restaurant?._data) }}
-                            >
-                                <View style={styles.imageContainer}>
-                                    <Image source={imageMap[restaurant._data.name]} style={styles.image} />
-                                </View>
-                                <Text style={styles.texcol}>{restaurant._data.name}</Text>
-                            </TouchableOpacity>
-                        ) 
-                        
-                    })
-                ) : (
-                    <Text style={styles.texcol}>No Top_10 res found.</Text>
-                )}
+            {inputValue?.length > 0 ? (
+                <View>
+                    <SearchedResults
+                        resturants={filteredResturants}
+                        handleCardPress={handleCardPress}
+                        imageMap={imageMap}
+                    />
+                </View>
+            ) : (
+                <View>
+                    <Text style={[styles.headingText, { textDecorationLine: 'underline' }]}>
+                        Popular Restaurant
+                    </Text>
+                    <ScrollView style={styles.container} horizontal={true}>
+                        {popularResturant?.length > 0 ? (
+                            popularResturant?.map((restaurant, index) => (
+                                <TouchableOpacity
+                                    key={index}
+                                    style={[styles.card, styles.elevated]}
+                                    onPress={() => { handleCardPress(restaurant?._data) }}
+                                >
+                                    <View style={styles.imageContainer}>
+                                        <Image source={imageMap[restaurant._data.name]} style={styles.image} />
+                                    </View>
+                                    <Text style={styles.texcol}>{restaurant._data.name}</Text>
+                                </TouchableOpacity>
+                            ))
+                        ) : (
+                            <Text style={styles.texcol}>No restaurants found.</Text>
+                        )}
+                    </ScrollView>
+                    <Text style={[styles.headingText, { textDecorationLine: 'underline' }]}>
+                        Top_10
+                    </Text>
+                    <ScrollView style={styles.container} horizontal={true}>
+                        {top_10?.length > 0 ? (
+                            top_10?.map((restaurant, index) => {
+                                console.log("top 10 item ", restaurant._data.name);
+                                return (  // <-- Added parentheses here
+                                    <TouchableOpacity
+                                        key={index}
+                                        style={[styles.card, styles.elevated]}
+                                        onPress={() => { handleCardPress(restaurant?._data) }}
+                                    >
+                                        <View style={styles.imageContainer}>
+                                            <Image source={imageMap[restaurant._data.name]} style={styles.image} />
+                                        </View>
+                                        <Text style={styles.texcol}>{restaurant._data.name}</Text>
+                                    </TouchableOpacity>
+                                )
 
-            </ScrollView>
-            <Text style={[styles.headingText, { textDecorationLine: 'underline' }]}>
-                Remarkable
-            </Text>
-            <ScrollView style={styles.container} horizontal={true}>
-                {Remarkable?.length > 0 ? (
-                    Remarkable?.map((restaurant, index) => {
-                        return (  // <-- Added parentheses here
-                            <TouchableOpacity
-                                key={index}
-                                style={[styles.card, styles.elevated]}
-                                onPress={() => { handleCardPress(restaurant?._data) }}
-                            >
-                                <View style={styles.imageContainer}>
-                                    <Image source={imageMap[restaurant._data.name]} style={styles.image} />
-                                </View>
-                                <Text style={styles.texcol}>{restaurant._data.name}</Text>
-                            </TouchableOpacity>
-                        )
+                            })
+                        ) : (
+                            <Text style={styles.texcol}>No Top_10 res found.</Text>
+                        )}
 
-                    })
-                ) : (
-                        <Text style={styles.texcol}>No Remarkable res found.</Text>
-                )}
-            </ScrollView> 
+                    </ScrollView>
+                    <Text style={[styles.headingText, { textDecorationLine: 'underline' }]}>
+                        Remarkable
+                    </Text>
+                    <ScrollView style={styles.container} horizontal={true}>
+                        {Remarkable?.length > 0 ? (
+                            Remarkable?.map((restaurant, index) => {
+                                return (  // <-- Added parentheses here
+                                    <TouchableOpacity
+                                        key={index}
+                                        style={[styles.card, styles.elevated]}
+                                        onPress={() => { handleCardPress(restaurant?._data) }}
+                                    >
+                                        <View style={styles.imageContainer}>
+                                            <Image source={imageMap[restaurant._data.name]} style={styles.image} />
+                                        </View>
+                                        <Text style={styles.texcol}>{restaurant._data.name}</Text>
+                                    </TouchableOpacity>
+                                )
 
+                            })
+                        ) : (
+                            <Text style={styles.texcol}>No Remarkable res found.</Text>
+                        )}
+                    </ScrollView>
+
+                </View>
+            )}
             {isDetailVisible && (
                 <Animated.View style={[styles.detailContainer, { opacity: fadeAnim }]}>
-                    <Text style={styles.detailText}>Name: {selectedRestaurant?.name}</Text>
-                    <Text style={styles.detailText}>Bank offers:</Text>
-                    {selectedRestaurant?.discount?.map((item:any)=>{
-                        return (
-                            <Text style={styles.detailText}>
+                    <ScrollView
+                        style={{ flexGrow: 1, flex: 1 }} // Ensures ScrollView takes up available space
+                        contentContainerStyle={styles.scrollContent} // Ensures content is vertically centered
+                    >
+                        <Text style={styles.detailText}>Name: {selectedRestaurant?.name}</Text>
+                        <Text style={styles.detailText}>Bank offers:</Text>
+                        {selectedRestaurant?.discount?.map((item: any, index: number) => (
+                            <Text key={index} style={styles.detailText}>
                                 {item?.discount_day}:
-                                {item?.discount_bank?.map((bank: string) => (
-                                    <Text style={styles.detailText}>{bank}</Text>
+                                {item?.discount_bank?.map((bank: string, bankIndex: number) => (
+                                    <Text key={bankIndex} style={styles.detailText}>{bank}</Text>
                                 ))}
                             </Text>
-                        );
-                    })}
-                    <Text style={styles.detailText}>Phone: {selectedRestaurant?.contact }</Text>
-                    <Text style={styles.detailText}>Address:  {  selectedRestaurant?.address}</Text>
-                    <Text style={styles.detailText}> Rating: {selectedRestaurant?.rating}</Text>
-                    <Text style={styles.detailText}>Reviews: </Text>
-                    {selectedRestaurant?.reviews?.map((review:any,index:number)=>{
-                        return(
-                         <Text key={index} style={styles.detailText}>{review}</Text>
-                        );
-                    })}
-                    <TouchableOpacity onPress={fadeOut}>
+                        ))}
+                        <Text style={styles.detailText}>Phone: {selectedRestaurant?.contact}</Text>
+                        <Text style={styles.detailText}>Address: {selectedRestaurant?.address}</Text>
+                        <Text style={styles.detailText}>Rating: {selectedRestaurant?.rating}</Text>
+                        <Text style={styles.detailText}>Reviews:</Text>
+                        {selectedRestaurant?.reviews?.map((review: string, index: number) => (
+                            <Text key={index} style={styles.detailText}>{review}</Text>
+                        ))}
+                    </ScrollView>
+                    <TouchableOpacity onPress={fadeOut} style={styles.closeButtonContainer}>
                         <Text style={styles.closeButton}>Close</Text>
                     </TouchableOpacity>
                 </Animated.View>
             )}
 
-            {/* Modal content with fade-in animation */}
         </View>
     );
 }
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
     searchbox: {
         justifyContent: 'center',
         alignItems: 'center',
@@ -285,14 +289,25 @@ const styles = StyleSheet.create({
     },
     detailContainer: {
         position: 'absolute',
-        bottom: 200 , // Adjusted to show from the bottom with a gap
-        height: 400,
-        width: '85%',
+        width: '90%',
         backgroundColor: '#EEEEEE',
-        borderRadius: 50,
-        padding: 10,
+        borderRadius: 20,
+        paddingVertical: 20,
+        paddingHorizontal: 15,
         alignSelf: 'center',
+        top: '10%',
+        maxHeight: '80%',
         zIndex: 5,
+    },
+    scrollContent: {
+        flexGrow: 1,
+        justifyContent: 'center', // Centers the content within ScrollView
+        paddingBottom: 20,
+    },
+    closeButtonContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingVertical: 10,
     },
     detailText: {
         fontSize: 15,
@@ -303,10 +318,9 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     closeButton: {
-        marginTop: 20,
         fontSize: 18,
         color: 'red',
-        textAlign: 'center',
+        fontWeight: 'bold',
     },
     absolute: {
         position: 'absolute',
