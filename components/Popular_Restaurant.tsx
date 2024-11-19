@@ -1,10 +1,40 @@
 import { ScrollView, StyleSheet, Text, View, Image, TouchableOpacity, TextInput, Animated } from 'react-native';
 import React, { useEffect, useMemo, useState } from 'react';
-import Clipboard from '@react-native-clipboard/clipboard';
 import { BlurView } from '@react-native-community/blur';
 import firestore from '@react-native-firebase/firestore';
 import SearchedResults from './SearchedResults';
+function getMaxDiscount(discountBanks) {
+    let maxDiscount = null;
+    console.log("Discounted banks are ", discountBanks)
+    discountBanks.forEach((bank) => {
+        const discountValue = parseFloat(bank.discount);
 
+        if (!maxDiscount || discountValue > maxDiscount.discount) {
+            maxDiscount = {
+                name: bank.name,
+                discount: discountValue,
+            };
+        }
+    });
+    console.log("Max discount value ", maxDiscount)
+    return maxDiscount;
+}
+const resturantMaxDiscount = (resturant: any) => {
+    let maxDisc: number = 0
+    let name: string = ""
+    console.log("Resturant is ", resturant)
+    resturant?._data?.discount?.forEach((subItem: any) => {
+        const temp = getMaxDiscount(subItem?.discount_bank)
+        console.log("temp value is ", temp)
+        if (temp?.discount > 0) {
+            maxDisc = temp?.discount
+            name = temp?.name
+        }
+
+    })
+    console.log("Max discount is ", maxDisc)
+    return { maxDisc, name }
+}
 
 export default function ElevatedCards() {
     const [isDetailVisible, setIsDetailVisible] = useState(false);
@@ -12,15 +42,15 @@ export default function ElevatedCards() {
     const [fadeAnim] = useState(new Animated.Value(0));
     const [inputValue, setInputValue] = useState('');
     const [isFocused, setIsFocused] = useState(false);
-    const [resturants, setResturants] = useState<any[] | []>([])
+    const [resturants, setResturants] = useState<any[] | []>([]);
     useEffect(() => {
         const getDatabase = async () => {
             const docRef = firestore().collection('resturants');
             const doc = await docRef.get();
-            setResturants(doc.docs || [])
+            setResturants(doc.docs || []);
         };
-        getDatabase()
-    }, [])
+        getDatabase();
+    }, []);
     const handleCardPress = (restaurant: any) => {
         setSelectedRestaurant(restaurant);
         setIsDetailVisible(true);
@@ -28,48 +58,32 @@ export default function ElevatedCards() {
         fadeIn();
     };
     const popularResturant = useMemo(() => {
-        console.log("Resturants in use memo ", resturants);
         const filteredRest = resturants?.filter((item: any) => {
-            console.log(" resutnat single in use ,emo , ", item?._data);
-            return (item?._data.resturant_type?.toLowerCase() === 'popular')
-        })
-        console.log("Filtred Resturants in use memo ", filteredRest);
-        return filteredRest
-    }, [resturants])
+            return (item?._data.resturant_type?.toLowerCase() === 'popular');
+        });
+        return filteredRest;
+    }, [resturants]);
     const top_10 = useMemo(() => {
-        console.log("Resturants in use memo ", resturants);
-
         const filteredRest = resturants?.filter((item: any) => {
-            console.log(" resutnat single in use ,emo , ", item?._data);
-
-            return (item?._data.resturant_type?.toLowerCase() === 'top_10')
-        })
-        console.log("Filtred Resturants in use memo ", filteredRest);
-
-        return filteredRest
-    }, [resturants])
+            return (item?._data.resturant_type?.toLowerCase() === 'top_10');
+        });
+        return filteredRest;
+    }, [resturants]);
 
     const Remarkable = useMemo(() => {
-        console.log("Resturants in use memo ", resturants);
-
         const filteredRest = resturants?.filter((item: any) => {
-            console.log(" resutnat single in use ,emo , ", item?._data);
+            return (item?._data.resturant_type?.toLowerCase() === 'remarkable');
+        });
+        return filteredRest;
+    }, [resturants]);
 
-            return (item?._data.resturant_type?.toLowerCase() === 'remarkable')
-        })
-        console.log("Filtred Resturants in use memo ", filteredRest);
-
-        return filteredRest
-    }, [resturants])
-
-    const fadeIn = () => {
+    function fadeIn() {
         Animated.timing(fadeAnim, {
             toValue: 1, // Fade to full opacity
             duration: 500,
             useNativeDriver: true,
         }).start();
-    };
-
+    }
     const imageMap = {
         'fork-n-knive': require('./../assets/fork-n-knive.jpeg'),
         'Double Cheeze': require('./../assets/DoubleCheezeGulgasht.png'),
@@ -90,12 +104,20 @@ export default function ElevatedCards() {
 
     const filteredResturants = useMemo(() => {
         const filteredRest = resturants?.filter((item: any) => {
-            console.log(" resutnat single in use ,emo , ", item?._data);
+            return (item?._data.name?.toLowerCase()?.includes(inputValue?.toLowerCase()));
+        });
+        return filteredRest;
+    }, [resturants, inputValue]);
+    const CDay=()=>{
+        const today = new Date();
 
-            return (item?._data.name?.toLowerCase()?.includes(inputValue?.toLowerCase()))
-        })
-        return filteredRest
-    }, [resturants, inputValue])
+        // Array of day names
+        const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+        // Get today's day name
+        const currentDay = daysOfWeek[today.getDay()];
+
+    };
 
     return (
         <View style={{ flex: 1 }}>
@@ -135,7 +157,8 @@ export default function ElevatedCards() {
                     </Text>
                     <ScrollView style={styles.container} horizontal={true}>
                         {popularResturant?.length > 0 ? (
-                            popularResturant?.map((restaurant, index) => (
+                            popularResturant?.map((restaurant, index) => {
+                                return(
                                 <TouchableOpacity
                                     key={index}
                                     style={[styles.card, styles.elevated]}
@@ -145,8 +168,11 @@ export default function ElevatedCards() {
                                         <Image source={imageMap[restaurant._data.name]} style={styles.image} />
                                     </View>
                                     <Text style={styles.texcol}>{restaurant._data.name}</Text>
+                                <Text style={styles.maxDic}> Max Discount today: {resturantMaxDiscount(restaurant)?.name } {resturantMaxDiscount(restaurant)?.maxDisc || "0"} </Text>
+
+
                                 </TouchableOpacity>
-                            ))
+                            );})
                         ) : (
                             <Text style={styles.texcol}>No restaurants found.</Text>
                         )}
@@ -157,7 +183,6 @@ export default function ElevatedCards() {
                     <ScrollView style={styles.container} horizontal={true}>
                         {top_10?.length > 0 ? (
                             top_10?.map((restaurant, index) => {
-                                console.log("top 10 item ", restaurant._data.name);
                                 return (  // <-- Added parentheses here
                                     <TouchableOpacity
                                         key={index}
@@ -168,6 +193,8 @@ export default function ElevatedCards() {
                                             <Image source={imageMap[restaurant._data.name]} style={styles.image} />
                                         </View>
                                         <Text style={styles.texcol}>{restaurant._data.name}</Text>
+                                        <Text style={styles.maxDic}> Max Discount today: {resturantMaxDiscount(restaurant)?.name} {resturantMaxDiscount(restaurant)?.maxDisc || "0"} </Text>
+
                                     </TouchableOpacity>
                                 )
 
@@ -193,6 +220,8 @@ export default function ElevatedCards() {
                                             <Image source={imageMap[restaurant._data.name]} style={styles.image} />
                                         </View>
                                         <Text style={styles.texcol}>{restaurant._data.name}</Text>
+                                        <Text style={styles.maxDic}> Max Discount today: {resturantMaxDiscount(restaurant)?.name} {resturantMaxDiscount(restaurant)?.maxDisc || "0"}  </Text>
+
                                     </TouchableOpacity>
                                 )
 
@@ -206,33 +235,57 @@ export default function ElevatedCards() {
             )}
             {isDetailVisible && (
                 <Animated.View style={[styles.detailContainer, { opacity: fadeAnim }]}>
-                    <ScrollView
-                        style={{ flexGrow: 1, flex: 1 }} // Ensures ScrollView takes up available space
-                        contentContainerStyle={styles.scrollContent} // Ensures content is vertically centered
-                    >
-                        <Text style={styles.detailText}>Name: {selectedRestaurant?.name}</Text>
-                        <Text style={styles.detailText}>Bank offers:</Text>
+                    <ScrollView contentContainerStyle={styles.scrollContent}>
+                        <Text style={styles.sectionHeading}>Name</Text>
+                        <Text style={styles.detailText}>{selectedRestaurant?.name}</Text>
+
+                        <View style={styles.sectionDivider} />
+
+                        <Text style={styles.sectionHeading}>Bank Offers</Text>
                         {selectedRestaurant?.discount?.map((item: any, index: number) => (
-                            <Text key={index} style={styles.detailText}>
-                                {item?.discount_day}:
-                                {item?.discount_bank?.map((bank: string, bankIndex: number) => (
-                                    <Text key={bankIndex} style={styles.detailText}>{bank}</Text>
+                            <View key={index} style={styles.bankOfferContainer}>
+                                <Text style={styles.detailText}>
+                                    {item?.discount_day || "All Days"}
+                                </Text>
+                                {item?.discount_bank?.map((bank: any, bankIndex: number) => (
+                                    <Text key={bankIndex} style={styles.detailText}>
+                                        • {bank.name} ({bank.discount}%)
+                                    </Text>
                                 ))}
+                            </View>
+                        ))}
+
+                        <View style={styles.sectionDivider} />
+
+                        <Text style={styles.sectionHeading}>Contact</Text>
+                        <Text style={styles.detailText}>📞 {selectedRestaurant?.contact}</Text>
+
+                        <View style={styles.sectionHeading} />
+
+                        <Text style={styles.sectionHeading}>Address</Text>
+                        <Text style={styles.detailText}>📍 {selectedRestaurant?.address}</Text>
+
+                        <View style={styles.sectionDivider} />
+
+                        <Text style={styles.sectionHeading}>Rating</Text>
+                        <Text style={styles.detailText}>⭐ {selectedRestaurant?.rating}</Text>
+
+                        <View style={styles.sectionDivider} />
+
+                        <Text style={styles.sectionHeading}>Reviews</Text>
+                        {selectedRestaurant?.reviews?.map((review: string, index: number) => (
+                            <Text key={index} style={styles.detailText}>
+                                • {review}
                             </Text>
                         ))}
-                        <Text style={styles.detailText}>Phone: {selectedRestaurant?.contact}</Text>
-                        <Text style={styles.detailText}>Address: {selectedRestaurant?.address}</Text>
-                        <Text style={styles.detailText}>Rating: {selectedRestaurant?.rating}</Text>
-                        <Text style={styles.detailText}>Reviews:</Text>
-                        {selectedRestaurant?.reviews?.map((review: string, index: number) => (
-                            <Text key={index} style={styles.detailText}>{review}</Text>
-                        ))}
                     </ScrollView>
+
                     <TouchableOpacity onPress={fadeOut} style={styles.closeButtonContainer}>
                         <Text style={styles.closeButton}>Close</Text>
                     </TouchableOpacity>
                 </Animated.View>
             )}
+
 
         </View>
     );
@@ -249,7 +302,7 @@ export const styles = StyleSheet.create({
         elevation: 10,
     },
     headingText: {
-        fontSize: 37,
+        fontSize: 25,
         textAlignVertical: 'center',
         paddingHorizontal: 30,
         fontStyle: 'normal',
@@ -268,10 +321,18 @@ export const styles = StyleSheet.create({
     },
     card: {
         borderRadius: 8,
-        width: 180,
-        height: 100,
+        width: 190,
+        height: 120,
         margin: 20,
         elevation: 10,
+    },
+    maxDic: {
+        fontWeight: 'bold',
+        fontSize: 12,
+        color: '#000000',
+        textAlign: 'left',
+        paddingLeft: 10,
+
     },
     elevated: {
         backgroundColor: '#EEEEEE',
@@ -290,36 +351,62 @@ export const styles = StyleSheet.create({
     detailContainer: {
         position: 'absolute',
         width: '90%',
-        backgroundColor: '#EEEEEE',
+        backgroundColor: '#FFFFFF',
         borderRadius: 20,
         paddingVertical: 20,
-        paddingHorizontal: 15,
+        paddingHorizontal: 20,
         alignSelf: 'center',
         top: '10%',
         maxHeight: '80%',
         zIndex: 5,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 10,
+        elevation: 6,
+    },
+    sectionDivider: {
+        borderBottomWidth: 6,
+        borderBottomColor: '#eee',
+        marginVertical: 1,
+    },
+    sectionHeading: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#444',
+        marginBottom: 10,
     },
     scrollContent: {
         flexGrow: 1,
-        justifyContent: 'center', // Centers the content within ScrollView
         paddingBottom: 20,
     },
     closeButtonContainer: {
         justifyContent: 'center',
         alignItems: 'center',
-        paddingVertical: 10,
+        paddingVertical: 15,
+        borderTopWidth: 1,
+        borderColor: '#E0E0E0',
+        marginTop: 10,
     },
     detailText: {
-        fontSize: 15,
-        marginVertical: 5,
-        fontWeight: 'bold',
-        fontStyle: 'italic',
+        fontSize: 17,
+        marginVertical: 6,
         color: '#000000',
-        textAlign: 'center',
+        textAlign: 'left',
+        marginLeft: 15,
+        fontWeight: 'bold',
+        lineHeight: 22,
+    },
+    detailLabel: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        color: '#1E90FF', // Soft blue color for labels
+        marginVertical: 6,
+        marginLeft: 15,
     },
     closeButton: {
-        fontSize: 18,
-        color: 'red',
+        fontSize: 19,
+        color: '#FF4444',
         fontWeight: 'bold',
     },
     absolute: {
@@ -330,5 +417,13 @@ export const styles = StyleSheet.create({
         right: 0,
         zIndex: 1,
     },
+   
+    divider: {
+        borderBottomColor: '#E0E0E0',
+        borderBottomWidth: 1,
+        marginVertical: 10,
+    },
 });
+
+
 
