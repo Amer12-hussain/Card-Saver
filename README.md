@@ -1,79 +1,47 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+Card Saver – Restaurant Discounts App
 
-# Getting Started
+Card Saver is a React Native mobile app that helps users find and view the latest restaurant discounts available every day. The app collects discount information from various banks and restaurants, making it easy for users to discover where they can save money without calling each restaurant individually.
 
->**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
+** Features
 
-## Step 1: Start the Metro Server
+ Daily Discounts – See the latest discounts from restaurants updated every day.
 
-First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
+ Bank-wise Offers – View discounts based on different bank cards (e.g., HBL, MCB, UBL, etc.).
 
-To start Metro, run the following command from the _root_ of your React Native project:
+ Restaurant Information – Quickly access restaurant details like address, contact, rating, and reviews.
 
-```bash
-# using npm
-npm start
+ Search & Filter – Find discounts easily by restaurant name or bank card.
 
-# OR using Yarn
-yarn start
-```
+ Cloud Database – Powered by Firebase Firestore for real-time discount updates.
 
-## Step 2: Start your Application
+ Cross-Platform – Works on both Android and iOS devices.
 
-Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
+** App Flow
 
-### For Android
+Home Screen → Displays the latest available discounts of the day.
 
-```bash
-# using npm
-npm run android
+Restaurant List → Shows restaurants with discounts sorted by bank cards.
 
-# OR using Yarn
-yarn android
-```
+Discount Details → Tap a restaurant to view available discounts, rating, address, and contact.
 
-### For iOS
+Daily Updates → Automatically shows only valid discounts for the current day.
 
-```bash
-# using npm
-npm run ios
+** Tech Stack
 
-# OR using Yarn
-yarn ios
-```
+Frontend: React Native (TypeScript)
 
-If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
+Backend / Database: Firebase Firestore
 
-This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
+State Management: React hooks
 
-## Step 3: Modifying your App
+**Contributing
 
-Now that you have successfully run the app, let's modify it.
+Contributions are welcome! Feel free to fork this repo, submit issues, or create pull requests.
 
-1. Open `App.tsx` in your text editor of choice and edit some lines.
-2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
+Navigation: React Navigation
 
-   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
+Animations: React Native Reanimated
 
-## Congratulations! :tada:
+**Contact
 
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+For feedback or suggestions, reach out at: amer.hussain2434@gmail.com
